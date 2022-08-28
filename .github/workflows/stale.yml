@@ -1,0 +1,41 @@
+# This workflow warns and then closes issues and PRs that have had no activity for a specified amount of time.
+#
+# You can adjust the behavior by modifying this file.
+# For more information, see:
+# https://github.com/actions/stale
+#name: Mark stale issues and pull requests
+
+name: Build padavan
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Installation depends
+      run: |
+        sudo apt update 
+        sudo apt install unzip libtool-bin curl cmake gperf gawk flex bison nano xxd
+        fakeroot kmod cpio git python3-docutils gettext automake autopoint
+        texinfo build-essential help2man pkg-config zlib1g-dev libgmp3-dev
+        libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget libc-dev-bin
+    - name: Clone source code
+      run: |
+        git clone https://github.com/ZenZRyan/rt-n56u.git
+        cd /opt/rt-n56u/toolchain-mipsel
+        ./clean_toolchain && ./build_toolchain #(recommendation) or ./dl_toolchain.sh
+    - name: Generate config file
+      run: |
+        cd /opt/rt-n56u/trunk
+        fakeroot ./build_firmware_modify ZTE_E8820S
+    
+    - name : Upload artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: images_mt7621
+        path: /opt/images/*.7z
+        if-no-files-found: warn
+      env:
+        build_variant: mt7621
+        targets: ZTE_E8820S
+        images_dir: /opt/images
+        image_name: images_mt7621
