@@ -36,7 +36,7 @@ jobs:
       matrix:
         include:
           - build_variant: "mt7621-usb"
-            targets: "ZTE-E8820S"
+            targets: "ZTE_E8820S"
     steps:
       - uses: actions/checkout@v2
         with:
